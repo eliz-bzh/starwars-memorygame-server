@@ -4,7 +4,7 @@ const mysql = require("mysql");
 const port = process.env.PORT || 3001;
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const db = mysql.createConnection({
+/*const db = mysql.createConnection({
     host: 'us-cdbr-east-03.cleardb.com',
     user: 'b016b39f0eb8a4',
     password: 'ccbbce4c',
@@ -19,11 +19,39 @@ db.connect(err => {
     else {
         console.log('Database OK');
     }
-});
+});*/
 
-setInterval(function () {
-    db.query('SELECT 1');
-}, 60000);
+var db;
+
+function handleDisconnect() {
+    db = mysql.createConnection({
+        host: 'us-cdbr-east-03.cleardb.com',
+        user: 'b016b39f0eb8a4',
+        password: 'ccbbce4c',
+        database: 'heroku_207cf8762746b66'
+    });
+
+    db.connect(function (err) {
+        if (err) {
+            console.log('error when connecting to db:', err);
+            setTimeout(handleDisconnect, 2000);
+        }
+        else {
+            console.log('Database OK');
+        }
+    });
+
+    db.on('error', function (err) {
+        console.log('db error', err);
+        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+            handleDisconnect();
+        } else {
+            throw err;
+        }
+    });
+}
+
+handleDisconnect();
 
 app.use(cors());
 app.use(bodyParser.json());
