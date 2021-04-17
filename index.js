@@ -23,7 +23,7 @@ db.connect(err => {
 
 setInterval(function () {
     db.query('SELECT 1');
-}, 1000);
+}, 60000);
 
 app.use(cors());
 app.use(bodyParser.json());
